@@ -1,12 +1,19 @@
 function ConvertHandler() {
   this.getNum = function (input) {
+    this.validateInput(input);
+
+    const inputWithoutUnit = this.removeUnit(input);
     let result;
 
-    if (input.includes("/")) {
-      const [num, denom] = input.split("/");
+    if (inputWithoutUnit === "") {
+      return 1;
+    }
+
+    if (inputWithoutUnit.includes("/")) {
+      const [num, denom] = inputWithoutUnit.split("/");
       result = num / denom;
     } else {
-      result = input;
+      result = parseFloat(inputWithoutUnit);
     }
 
     return result;
@@ -15,7 +22,13 @@ function ConvertHandler() {
   this.getUnit = function (input) {
     let result;
 
+    const allowedUnits = ["L", "gal", "lbs", "kg", "mi", "km"];
+
     const includeUnit = (unit) => input.includes(unit);
+
+    if (!allowedUnits.some(includeUnit)) {
+      throw new Error("invalid unit");
+    }
 
     if (includeUnit("L")) {
       result = "L";
@@ -29,8 +42,6 @@ function ConvertHandler() {
       result = "mi";
     } else if (includeUnit("km")) {
       result = "km";
-    } else {
-      result = "invalid unit";
     }
 
     return result;
@@ -115,6 +126,21 @@ function ConvertHandler() {
       returnUnit,
       string,
     };
+  };
+
+  this.removeUnit = function (input) {
+    return input.replace(/[a-zA-Z]/g, "");
+  };
+
+  this.validateInput = function (input) {
+    const inputWithoutUnit = this.removeUnit(input);
+
+    if (
+      inputWithoutUnit.includes("/") &&
+      inputWithoutUnit.split("/").length > 2
+    ) {
+      throw new Error("invalid number");
+    }
   };
 }
 
